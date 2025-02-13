@@ -40,24 +40,9 @@ import {
   UserX,
 } from "lucide-react";
 import { useState } from "react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import CreateUserDialog from "./CreateUserDialog";
 
 const UserTable = () => {
   const initialData = [
@@ -91,7 +76,6 @@ const UserTable = () => {
       department: "Sales",
       image: "/api/placeholder/32/32",
     },
-    // Add more sample users as needed
   ];
 
   const [data, setData] = useState(initialData);
@@ -181,10 +165,7 @@ const UserTable = () => {
               Manage user accounts and permissions
             </CardDescription>
           </div>
-          <Button className="flex items-center gap-2">
-            <UserPlus className="h-4 w-4" />
-            Add New User
-          </Button>
+          <CreateUserDialog />
         </div>
         <div className="flex items-center gap-4">
           <div className="relative flex-1 max-w-sm">

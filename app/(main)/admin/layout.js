@@ -18,6 +18,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
+
+const queryClient = new QueryClient();
 
 export default function AdminLayout({ children }) {
   const { data: session, status } = useSession();
@@ -60,7 +64,10 @@ export default function AdminLayout({ children }) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
+        <QueryClientProvider client={queryClient}>
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
+          <Toaster />
+        </QueryClientProvider>
       </SidebarInset>
     </SidebarProvider>
   );
