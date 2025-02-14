@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 13, 2025 at 05:44 AM
+-- Generation Time: Feb 14, 2025 at 09:17 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -52,8 +52,18 @@ CREATE TABLE `applications` (
   `date_transmitted_back_to_po` date DEFAULT NULL,
   `date_received_by_po` date DEFAULT NULL,
   `date_released_to_so` date DEFAULT NULL,
-  `remarks` text DEFAULT NULL
+  `remarks` text DEFAULT NULL,
+  `date_created` datetime NOT NULL DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `applications`
+--
+
+INSERT INTO `applications` (`application_id`, `name_of_applicant`, `provincial_office`, `date_received_by_po_from_so_applicant`, `type_of_application`, `date_of_payment`, `or_number`, `date_transmitted_to_ro`, `date_received_by_ro`, `ro_screener`, `date_forwarded_to_the_office_of_oic`, `oic_crasd`, `feedbacks`, `date_forwarded_to_ord`, `date_application_approved_by_rd`, `for_issuance_of_crasm`, `for_transmittal_of_crasm`, `date_crasm_generated`, `date_forwarded_back_to_the_office_of_oic_cao`, `date_reviewed_and_initialed_by_oic_crasd`, `date_forwarded_back_to_ord`, `date_transmitted_back_to_po`, `date_received_by_po`, `date_released_to_so`, `remarks`, `date_created`, `last_updated`) VALUES
+(1, 'Jessane Grace', 3, NULL, 'JOB Application', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-02-14 15:36:35', NULL),
+(2, 'Ghislaine Dedoldia', 2, NULL, 'Job Application', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-02-14 16:05:15', NULL);
 
 -- --------------------------------------------------------
 
@@ -122,7 +132,7 @@ INSERT INTO `sessions` (`session_id`, `user_id`, `session_data`, `created_at`, `
 
 CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
-  `province_id` int(11) NOT NULL,
+  `province_id` int(11) DEFAULT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(500) NOT NULL,
   `full_name` varchar(255) NOT NULL,
@@ -138,7 +148,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `province_id`, `username`, `password`, `full_name`, `email`, `user_type_id`, `created_at`, `updated_at`, `is_active`) VALUES
-(2, 1, 'user', '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8', 'Yves Owen Bonita', 'yvesmen1998@gmail.com', 1, '2025-01-10 06:59:27', NULL, 1);
+(2, 1, 'user', '81c1eed552b280dabcd1b935770f2ddd7c9b89ac', 'Yves Owen Bonita', 'yvesmen1998@gmail.com', 1, '2025-01-10 06:59:27', '2025-02-14 05:21:41', 1),
+(13, 3, 'sgorra048', 'bac1c1878168149d87d75543d011186a06e8f43e', 'Shan Gorra', 'shma.gorra.coc@phinmaed.com', 4, '2025-02-14 02:56:05', '2025-02-14 05:41:52', 1),
+(14, NULL, 'psho069', '83f889b62a5ba8eaaa3aa2f6715a6b9e1ee8aaed', 'Paul Sho', 'joda.orencio.coc@phinmaed.com', 2, '2025-02-14 03:03:21', '2025-02-14 06:59:25', 1),
+(19, 2, 'jdee400', 'f622af3fab4095bb6563a1ccd74eb8ce57fca5de', 'John Dee', 'johndee@gmail.com', 5, '2025-02-14 03:32:59', '2025-02-14 05:47:47', 1);
 
 -- --------------------------------------------------------
 
@@ -157,9 +170,9 @@ CREATE TABLE `usertypes` (
 
 INSERT INTO `usertypes` (`user_type_id`, `user_type_name`) VALUES
 (1, 'Admin'),
-(5, 'Collecting Officer'),
+(4, 'Collecting Officer'),
 (3, 'OIC/CAO'),
-(4, 'Provincial'),
+(5, 'Provincial'),
 (2, 'RD');
 
 --
@@ -209,7 +222,7 @@ ALTER TABLE `usertypes`
 -- AUTO_INCREMENT for table `applications`
 --
 ALTER TABLE `applications`
-  MODIFY `application_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `application_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `provincial_office`
@@ -221,13 +234,13 @@ ALTER TABLE `provincial_office`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `usertypes`
 --
 ALTER TABLE `usertypes`
-  MODIFY `user_type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `user_type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
