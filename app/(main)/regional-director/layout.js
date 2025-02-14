@@ -9,7 +9,7 @@ export default function AdminLayout({ children }) {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/auth/signin");
+      router.push("/auth");
     } else if (session?.user?.role !== "RD") {
       router.push("/");
     }

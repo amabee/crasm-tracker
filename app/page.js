@@ -9,7 +9,7 @@ export default function Home() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/auth/signin");
+      router.push("/auth");
     } else if (session?.user) {
       // Redirect based on user role
       switch (session.user.role) {

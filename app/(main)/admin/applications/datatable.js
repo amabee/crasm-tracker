@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -29,13 +29,10 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  MoreHorizontal,
   Eye,
   Edit,
   Trash,
-  AlertCircle,
 } from "lucide-react";
-import { useState } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -53,103 +50,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useApplication } from "@/hooks/useApplications";
+import { formatDate, formatDateTime } from "@/lib/utils";
 
+// DataTable Component
 const DataTable = () => {
-  // Expanded sample data
-  const initialData = [
-    {
-      id: 1,
-      name: "Project Alpha",
-      status: "Active",
-      priority: "High",
-      progress: 75,
-      lastUpdated: "2024-02-13",
-      owner: "John Doe",
-    },
-    {
-      id: 2,
-      name: "Project Beta",
-      status: "Pending",
-      priority: "Medium",
-      progress: 30,
-      lastUpdated: "2024-02-12",
-      owner: "Jane Smith",
-    },
-    {
-      id: 3,
-      name: "Project Gamma",
-      status: "Completed",
-      priority: "Low",
-      progress: 100,
-      lastUpdated: "2024-02-11",
-      owner: "Mike Johnson",
-    },
-    {
-      id: 4,
-      name: "Project Delta",
-      status: "Active",
-      priority: "High",
-      progress: 45,
-      lastUpdated: "2024-02-10",
-      owner: "Sarah Wilson",
-    },
-    {
-      id: 5,
-      name: "Project Epsilon",
-      status: "On Hold",
-      priority: "Medium",
-      progress: 60,
-      lastUpdated: "2024-02-09",
-      owner: "Tom Brown",
-    },
-    {
-      id: 6,
-      name: "Project Zeta",
-      status: "Active",
-      priority: "Low",
-      progress: 25,
-      lastUpdated: "2024-02-08",
-      owner: "Lisa Anderson",
-    },
-    {
-      id: 7,
-      name: "Project Eta",
-      status: "Pending",
-      priority: "High",
-      progress: 15,
-      lastUpdated: "2024-02-07",
-      owner: "Chris Martin",
-    },
-    {
-      id: 8,
-      name: "Project Theta",
-      status: "Completed",
-      priority: "Medium",
-      progress: 100,
-      lastUpdated: "2024-02-06",
-      owner: "Emma Davis",
-    },
-    {
-      id: 9,
-      name: "Project Iota",
-      status: "On Hold",
-      priority: "Low",
-      progress: 50,
-      lastUpdated: "2024-02-05",
-      owner: "David Clark",
-    },
-    {
-      id: 10,
-      name: "Project Kappa",
-      status: "Active",
-      priority: "High",
-      progress: 80,
-      lastUpdated: "2024-02-04",
-      owner: "Rachel Green",
-    },
-  ];
-
-  const [data, setData] = useState(initialData);
+  const {
+    applications,
+    isLoading,
+    isError,
+    deleteApplication,
+    updateApplication,
+    createApplication,
+  } = useApplication();
+  const [data, setData] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -176,7 +90,12 @@ const DataTable = () => {
     setSearchTerm(term);
     setCurrentPage(1);
 
-    const filteredData = initialData.filter((item) =>
+    if (!term) {
+      setData(applications);
+      return;
+    }
+
+    const filteredData = applications.filter((item) =>
       Object.values(item).some((value) =>
         value.toString().toLowerCase().includes(term)
       )
@@ -187,9 +106,7 @@ const DataTable = () => {
   const getStatusBadge = (status) => {
     const styles = {
       Active: "bg-green-100 hover:bg-green-200 text-green-800",
-      Pending: "bg-yellow-100 hover:bg-yellow-200 text-yellow-800",
-      Completed: "bg-blue-100 hover:bg-blue-200 text-blue-800",
-      "On Hold": "bg-gray-100 hover:bg-gray-200 text-gray-800",
+      Inactive: "bg-red-100 hover:bg-red-200 text-red-800",
     };
     return (
       <Badge className={`${styles[status]} cursor-pointer`} variant="outline">
@@ -197,25 +114,6 @@ const DataTable = () => {
       </Badge>
     );
   };
-
-  const getPriorityBadge = (priority) => {
-    const styles = {
-      High: "bg-red-100 hover:bg-red-200 text-red-800",
-      Medium: "bg-orange-100 hover:bg-orange-200 text-orange-800",
-      Low: "bg-green-100 hover:bg-green-200 text-green-800",
-    };
-    return (
-      <Badge className={`${styles[priority]} cursor-pointer`} variant="outline">
-        {priority}
-      </Badge>
-    );
-  };
-
-  // Pagination
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentData = data.slice(startIndex, endIndex);
 
   const handleRowSelect = (id) => {
     const newSelected = new Set(selectedRows);
@@ -227,15 +125,44 @@ const DataTable = () => {
     setSelectedRows(newSelected);
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <div className="text-red-500">
+            Error loading data: {error.message}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = data.slice(startIndex, endIndex);
+
   return (
     <Card className="w-full">
       <CardHeader>
         <div className="flex justify-between items-center">
           <div>
             <CardTitle>Applications Overview</CardTitle>
-            <CardDescription>
-              Manage and track all your project statuses
-            </CardDescription>
+            <CardDescription>Manage and track all applications</CardDescription>
           </div>
           <TooltipProvider>
             <Tooltip>
@@ -254,7 +181,7 @@ const DataTable = () => {
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search projects..."
+              placeholder="Search applications..."
               value={searchTerm}
               onChange={handleSearch}
               className="pl-8"
@@ -271,7 +198,7 @@ const DataTable = () => {
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
                   This action cannot be undone. This will permanently delete the
-                  selected projects and remove their data from our servers.
+                  selected applications.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -304,79 +231,44 @@ const DataTable = () => {
                   />
                 </TableHead>
                 <TableHead>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="h-8 data-[state=open]:bg-accent"
-                      >
-                        Applicant's Names
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                      <DropdownMenuItem onClick={() => handleSort("name")}>
-                        Sort by name
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleSort("name")}
+                    className="h-8"
+                  >
+                    Name
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
                 </TableHead>
+                <TableHead>Province</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="h-8 data-[state=open]:bg-accent"
-                      >
-                        Progress
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                      <DropdownMenuItem onClick={() => handleSort("progress")}>
-                        Sort by progress
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableHead>
-                <TableHead>Owner</TableHead>
+                <TableHead>Date Created</TableHead>
+                <TableHead>Last Updated</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentData.map((item) => (
-                <TableRow key={item.id} className="group">
+              {applications.map((application) => (
+                <TableRow key={application.id} className="group">
                   <TableCell>
                     <input
                       type="checkbox"
                       className="rounded border-gray-300"
-                      checked={selectedRows.has(item.id)}
-                      onChange={() => handleRowSelect(item.id)}
+                      checked={selectedRows.has(application.id)}
+                      onChange={() => handleRowSelect(application.id)}
                     />
                   </TableCell>
-                  <TableCell className="font-medium">{item.name}</TableCell>
-                  <TableCell>{getStatusBadge(item.status)}</TableCell>
-                  <TableCell>{getPriorityBadge(item.priority)}</TableCell>
-                  <TableCell>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <div className="w-full bg-gray-200 rounded-full h-2.5">
-                            <div
-                              className="bg-blue-600 h-2.5 rounded-full transition-all"
-                              style={{ width: `${item.progress}%` }}
-                            ></div>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{item.progress}% Complete</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                  <TableCell className="font-medium">
+                    {application.fullname}
                   </TableCell>
-                  <TableCell>{item.owner}</TableCell>
+                  <TableCell>{application.province}</TableCell>
+                  <TableCell>{getStatusBadge(application.status)}</TableCell>
+                  <TableCell>
+                    {formatDateTime(application.dateCreated)}
+                  </TableCell>
+                  <TableCell>
+                    {formatDateTime(application.lastUpdated)}
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <TooltipProvider>
@@ -399,7 +291,7 @@ const DataTable = () => {
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Edit Project</p>
+                            <p>Edit Application</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -411,10 +303,12 @@ const DataTable = () => {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Project</AlertDialogTitle>
+                            <AlertDialogTitle>
+                              Delete Application
+                            </AlertDialogTitle>
                             <AlertDialogDescription>
-                              Are you sure you want to delete this project? This
-                              action cannot be undone.
+                              Are you sure you want to delete this application?
+                              This action cannot be undone.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
