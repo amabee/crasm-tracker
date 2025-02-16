@@ -127,8 +127,8 @@ const DataTable = () => {
 
   const getStatusBadge = (status) => {
     const styles = {
-      Active: "bg-green-100 hover:bg-green-200 text-green-800",
-      Inactive: "bg-red-100 hover:bg-red-200 text-red-800",
+      Complete: "bg-green-100 hover:bg-green-200 text-green-800",
+      "In Progress": "bg-yellow-100 hover:bg-yellow-200 text-yellow-900",
     };
     return (
       <Badge className={`${styles[status]} cursor-pointer`} variant="outline">
@@ -235,7 +235,7 @@ const DataTable = () => {
                 <TableHead>Application Type</TableHead>
                 <TableHead>Date Created</TableHead>
                 <TableHead>Next Process</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead className="w-32">Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>

@@ -5,11 +5,14 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import LoadinPage from "@/components/LoadinPage";
+import { toast, Toaster } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export default function SignIn() {
   const router = useRouter();
   const [error, setError] = useState("");
   const { data: session, status } = useSession();
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (status === "authenticated" && session?.user?.role) {
@@ -30,6 +33,8 @@ export default function SignIn() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    setSubmitting(true);
     const form = e.target;
     try {
       const response = await signIn("credentials", {
@@ -39,10 +44,18 @@ export default function SignIn() {
       });
 
       if (response?.error) {
-        setError("Invalid credentials");
+        toast.error("Invalid Credentials", {
+          style: {
+            background: "#ffe4e4",
+            color: "#dc2626",
+          },
+        });
       }
+
     } catch (error) {
       setError("An error occurred during sign in");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -156,15 +169,24 @@ export default function SignIn() {
               <div className="!mt-8">
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                  className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none flex items-center justify-center disabled:bg-blue-300"
+                  disabled={submitting}
                 >
-                  Sign in
+                  {submitting ? (
+                    <>
+                      {" "}
+                      <Loader2 className="animate-spin h-5 w-5" /> Loading...
+                    </>
+                  ) : (
+                    "Sign in"
+                  )}
                 </button>
               </div>
             </form>
           </div>
         </div>
       </div>
+      <Toaster position="top-center" />
     </div>
   );
 }

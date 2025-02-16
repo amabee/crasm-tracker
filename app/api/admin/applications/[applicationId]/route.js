@@ -4,7 +4,7 @@ import { DateTime } from "luxon";
 
 export async function GET(request, { params }) {
   try {
-    const { applicationId } = params;
+    const { applicationId } = await params;
 
     const query = `
       SELECT 
@@ -73,7 +73,7 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   try {
-    const { applicationId } = params;
+    const { applicationId } = await params;
     const body = await request.json();
 
     const allowedFields = [
@@ -154,7 +154,7 @@ export async function PATCH(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    const { applicationId } = params;
+    const { applicationId } = await params;
 
     const query = `
       DELETE FROM applications 

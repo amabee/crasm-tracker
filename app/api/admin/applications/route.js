@@ -34,7 +34,7 @@ export async function GET() {
           ELSE 'Complete'
         END AS status,
         CASE
-          WHEN date_received_by_po_from_so_applicant IS NULL THEN 'Awaiting PO Receipt from SO/Applicant'
+          WHEN date_received_by_po_from_so_applicant IS NULL THEN 'Awaiting PO Receipt Date from SOIS/Applicant'
           WHEN date_of_payment IS NULL THEN 'Awaiting Payment'
           WHEN or_number IS NULL THEN 'Awaiting OR Number'
           WHEN date_transmitted_to_ro IS NULL THEN 'Awaiting Transmission to RO'
