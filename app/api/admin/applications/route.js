@@ -32,7 +32,31 @@ export async function GET() {
             remarks IS NULL
           ) THEN 'In Progress'
           ELSE 'Complete'
-        END AS status
+        END AS status,
+        CASE
+          WHEN date_received_by_po_from_so_applicant IS NULL THEN 'Awaiting PO Receipt from SO/Applicant'
+          WHEN date_of_payment IS NULL THEN 'Awaiting Payment'
+          WHEN or_number IS NULL THEN 'Awaiting OR Number'
+          WHEN date_transmitted_to_ro IS NULL THEN 'Awaiting Transmission to RO'
+          WHEN date_received_by_ro IS NULL THEN 'Awaiting RO Receipt'
+          WHEN ro_screener IS NULL THEN 'Awaiting RO Screener'
+          WHEN date_forwarded_to_the_office_of_oic IS NULL THEN 'Awaiting Forward to OIC'
+          WHEN oic_crasd IS NULL THEN 'Awaiting OIC CRASD'
+          WHEN feedbacks IS NULL THEN 'Awaiting Feedbacks'
+          WHEN date_forwarded_to_ord IS NULL THEN 'Awaiting Forward to ORD'
+          WHEN date_application_approved_by_rd IS NULL THEN 'Awaiting RD Approval'
+          WHEN for_issuance_of_crasm IS NULL THEN 'Awaiting CRASM Issuance'
+          WHEN for_transmittal_of_crasm IS NULL THEN 'Awaiting CRASM Transmittal'
+          WHEN date_crasm_generated IS NULL THEN 'Awaiting CRASM Generation'
+          WHEN date_forwarded_back_to_the_office_of_oic_cao IS NULL THEN 'Awaiting Forward to OIC CAO'
+          WHEN date_reviewed_and_initialed_by_oic_crasd IS NULL THEN 'Awaiting OIC CRASD Review'
+          WHEN date_forwarded_back_to_ord IS NULL THEN 'Awaiting Forward to ORD'
+          WHEN date_transmitted_back_to_po IS NULL THEN 'Awaiting Transmission to PO'
+          WHEN date_received_by_po IS NULL THEN 'Awaiting PO Receipt'
+          WHEN date_released_to_so IS NULL THEN 'Awaiting Release to SO'
+          WHEN remarks IS NULL THEN 'Awaiting Remarks'
+          ELSE 'Complete'
+        END AS awaiting_process
       FROM applications 
       LEFT JOIN provincial_office ON applications.provincial_office = provincial_office.province_id
       ORDER BY applications.date_created DESC

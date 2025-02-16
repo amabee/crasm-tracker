@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -52,8 +52,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useApplication } from "@/hooks/useApplications";
 import { formatDate, formatDateTime } from "@/lib/utils";
+import ApplicationViewDialog from "./applicationViewDialog";
+import ApplicationUpdateDialog from "./applicationUpdateDialog";
 
-// DataTable Component
 const DataTable = () => {
   const {
     applications,
@@ -62,13 +63,43 @@ const DataTable = () => {
     deleteApplication,
     updateApplication,
     createApplication,
+    isUpdating,
+    isDeleting,
+    refetchApplications,
+    refetchApplicationsDetails,
   } = useApplication();
-  const [data, setData] = useState([]);
+
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [selectedRows, setSelectedRows] = useState(new Set());
+
+  const computedData = useMemo(() => {
+    let result = [...(applications || [])];
+
+    // Apply search filter
+    if (searchTerm) {
+      result = result.filter((item) =>
+        Object.values(item).some((value) =>
+          String(value).toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+    }
+
+    // Apply sorting
+    if (sortConfig.key) {
+      result.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key])
+          return sortConfig.direction === "asc" ? -1 : 1;
+        if (a[sortConfig.key] > b[sortConfig.key])
+          return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [applications, searchTerm, sortConfig]);
 
   const handleSort = (key) => {
     let direction = "asc";
@@ -76,31 +107,22 @@ const DataTable = () => {
       direction = "desc";
     }
     setSortConfig({ key, direction });
-
-    const sortedData = [...data].sort((a, b) => {
-      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
-    setData(sortedData);
   };
 
   const handleSearch = (event) => {
-    const term = event.target.value.toLowerCase();
+    const term = event.target.value;
     setSearchTerm(term);
     setCurrentPage(1);
+  };
 
-    if (!term) {
-      setData(applications);
-      return;
+  const handleRowSelect = (id) => {
+    const newSelected = new Set(selectedRows);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
     }
-
-    const filteredData = applications.filter((item) =>
-      Object.values(item).some((value) =>
-        value.toString().toLowerCase().includes(term)
-      )
-    );
-    setData(filteredData);
+    setSelectedRows(newSelected);
   };
 
   const getStatusBadge = (status) => {
@@ -115,17 +137,6 @@ const DataTable = () => {
     );
   };
 
-  const handleRowSelect = (id) => {
-    const newSelected = new Set(selectedRows);
-    if (newSelected.has(id)) {
-      newSelected.delete(id);
-    } else {
-      newSelected.add(id);
-    }
-    setSelectedRows(newSelected);
-  };
-
-  // Loading state
   if (isLoading) {
     return (
       <Card className="w-full">
@@ -144,17 +155,17 @@ const DataTable = () => {
       <Card className="w-full">
         <CardContent className="p-6">
           <div className="text-red-500">
-            Error loading data: {error.message}
+            Error loading data: {isError.message}
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const totalPages = Math.ceil(computedData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentData = data.slice(startIndex, endIndex);
+  const currentData = computedData.slice(startIndex, endIndex);
 
   return (
     <Card className="w-full">
@@ -187,26 +198,6 @@ const DataTable = () => {
               className="pl-8"
             />
           </div>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" disabled={selectedRows.size === 0}>
-                Delete Selected
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  selected applications.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction>Delete</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       </CardHeader>
       <CardContent>
@@ -233,7 +224,7 @@ const DataTable = () => {
                 <TableHead>
                   <Button
                     variant="ghost"
-                    onClick={() => handleSort("name")}
+                    onClick={() => handleSort("fullname")}
                     className="h-8"
                   >
                     Name
@@ -241,14 +232,15 @@ const DataTable = () => {
                   </Button>
                 </TableHead>
                 <TableHead>Province</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Application Type</TableHead>
                 <TableHead>Date Created</TableHead>
-                <TableHead>Last Updated</TableHead>
+                <TableHead>Next Process</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {applications.map((application) => (
+              {currentData.map((application, index) => (
                 <TableRow key={application.id} className="group">
                   <TableCell>
                     <input
@@ -262,21 +254,24 @@ const DataTable = () => {
                     {application.fullname}
                   </TableCell>
                   <TableCell>{application.province}</TableCell>
-                  <TableCell>{getStatusBadge(application.status)}</TableCell>
+                  <TableCell>{application.typeOfApplication}</TableCell>
                   <TableCell>
                     {formatDateTime(application.dateCreated)}
                   </TableCell>
                   <TableCell>
-                    {formatDateTime(application.lastUpdated)}
+                    <Badge variant="outline">
+                      {application.awaitingProcess}
+                    </Badge>
                   </TableCell>
+                  <TableCell>{getStatusBadge(application.status)}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <Eye className="h-4 w-4" />
-                            </Button>
+                            <ApplicationViewDialog
+                              applicationId={application.id}
+                            />
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>View Details</p>
@@ -286,9 +281,13 @@ const DataTable = () => {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <Edit className="h-4 w-4" />
-                            </Button>
+                            <ApplicationUpdateDialog
+                              application={applications}
+                              index={index}
+                              onUpdate={updateApplication}
+                              isUpdating={isUpdating}
+                              onRefetchData={refetchApplications}
+                            />
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>Edit Application</p>
@@ -313,7 +312,11 @@ const DataTable = () => {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction>Delete</AlertDialogAction>
+                            <AlertDialogAction
+                              onClick={() => deleteApplication(application.id)}
+                            >
+                              Delete
+                            </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
@@ -389,8 +392,8 @@ const DataTable = () => {
             </DropdownMenuContent>
           </DropdownMenu>
           <span className="text-sm text-muted-foreground">
-            Showing {startIndex + 1}-{Math.min(endIndex, data.length)} of{" "}
-            {data.length}
+            Showing {startIndex + 1}-{Math.min(endIndex, computedData.length)}{" "}
+            of {computedData.length}
           </span>
         </div>
       </CardFooter>
