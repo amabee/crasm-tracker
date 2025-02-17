@@ -79,7 +79,7 @@ export const useUser = (onSuccess) => {
     onError: (error) => {
       toast.error(
         error.response?.data?.error ||
-          `Failed to create user ${JSON.stringify(error)}`
+          `Failed to create user`
       );
       console.log(error);
     },

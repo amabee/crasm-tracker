@@ -4,7 +4,6 @@ import DataTable from "./datatable";
 import { motion } from "framer-motion";
 
 export default function ApplicationsPage() {
-  console.log("Rendering ApplicationsPage");
 
   const containerVariants = {
     hidden: { opacity: 0 },
