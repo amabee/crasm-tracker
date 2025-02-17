@@ -21,7 +21,7 @@ export default function Home() {
           router.push("/regional-director");
           break;
         case "OIC/CAO":
-          router.push("/oic");
+          router.push("/oiccao");
           break;
         case "Provincial":
           router.push("/provincial");

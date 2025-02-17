@@ -19,7 +19,7 @@ export default function SignIn() {
       const routes = {
         Admin: "/admin",
         RD: "/regional-director",
-        "OIC/CAO": "/oic",
+        "OIC/CAO": "/oiccao",
         Provincial: "/provincial",
         "Collecting Officer": "/collector",
       };

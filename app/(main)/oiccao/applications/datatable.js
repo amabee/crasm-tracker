@@ -39,18 +39,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { useApplication } from "@/hooks/rdHooks/useApplications";
+import { useApplication } from "@/hooks/oiccaoHooks/useApplications";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import ApplicationViewDialog from "./applicationViewDialog";
 import ApplicationUpdateDialog from "./applicationUpdateDialog";
@@ -60,13 +49,9 @@ const DataTable = () => {
     applications,
     isLoading,
     isError,
-    deleteApplication,
     updateApplication,
-    createApplication,
     isUpdating,
-    isDeleting,
     refetchApplications,
-    refetchApplicationsDetails,
   } = useApplication();
 
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
@@ -78,7 +63,6 @@ const DataTable = () => {
   const computedData = useMemo(() => {
     let result = [...(applications || [])];
 
-    // Apply search filter
     if (searchTerm) {
       result = result.filter((item) =>
         Object.values(item).some((value) =>

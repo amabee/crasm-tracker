@@ -20,7 +20,7 @@ export default withAuth(
       return NextResponse.redirect(new URL("/", req.url));
     }
 
-    if (path.startsWith("/oic") && token?.role !== "OIC/CAO") {
+    if (path.startsWith("/oiccao") && token?.role !== "OIC/CAO") {
       return NextResponse.redirect(new URL("/", req.url));
     }
 
@@ -43,7 +43,7 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/regional-director/:path*",
-    "/oic/:path*",
+    "/oiccao/:path*",
     "/provincial/:path*",
     "/collector/:path*",
     "/",
