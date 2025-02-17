@@ -39,7 +39,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useApplication } from "@/hooks/cashierHooks/useApplications";
+import { useApplication } from "@/hooks/provincialHooks/useApplications";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import ApplicationViewDialog from "./applicationViewDialog";
 import ApplicationUpdateDialog from "./applicationUpdateDialog";
@@ -123,7 +123,7 @@ const DataTable = () => {
     );
   };
 
-  if (isLoading) {
+  if (isLoading || status === "loading") {
     return (
       <Card className="w-full">
         <CardContent className="p-6">
