@@ -27,7 +27,7 @@ export default function Home() {
           router.push("/provincial");
           break;
         case "Collecting Officer":
-          router.push("/collector");
+          router.push("/cashier");
           break;
       }
     }

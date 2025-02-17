@@ -39,12 +39,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useApplication } from "@/hooks/oiccaoHooks/useApplications";
+import { useApplication } from "@/hooks/cashierHooks/useApplications";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import ApplicationViewDialog from "./applicationViewDialog";
 import ApplicationUpdateDialog from "./applicationUpdateDialog";
+import { useSession } from "next-auth/react";
 
 const DataTable = () => {
+  const { data: session, status } = useSession();
   const {
     applications,
     isLoading,
@@ -52,7 +54,7 @@ const DataTable = () => {
     updateApplication,
     isUpdating,
     refetchApplications,
-  } = useApplication();
+  } = useApplication(null,session?.user?.provinceId);
 
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [searchTerm, setSearchTerm] = useState("");
@@ -63,6 +65,7 @@ const DataTable = () => {
   const computedData = useMemo(() => {
     let result = [...(applications || [])];
 
+    // Apply search filter
     if (searchTerm) {
       result = result.filter((item) =>
         Object.values(item).some((value) =>
@@ -126,7 +129,7 @@ const DataTable = () => {
       <Card className="w-full">
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-18 w-18 border-b-2 border-gray-900"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
           </div>
         </CardContent>
       </Card>

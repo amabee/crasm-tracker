@@ -21,7 +21,7 @@ export default function SignIn() {
         RD: "/regional-director",
         "OIC/CAO": "/oiccao",
         Provincial: "/provincial",
-        "Collecting Officer": "/collector",
+        "Collecting Officer": "/cashier",
       };
 
       const targetRoute = routes[session.user.role];

@@ -53,7 +53,7 @@ const ApplicationUpdateDialog = ({
 
   const onSubmit = (data) => {
     onUpdate({ id: application?.[index]?.id, data });
-    setOpen(false);
+    //setOpen(false);
     onRefetchData();
   };
 

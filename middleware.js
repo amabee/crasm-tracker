@@ -28,7 +28,7 @@ export default withAuth(
       return NextResponse.redirect(new URL("/", req.url));
     }
 
-    if (path.startsWith("/collector") && token?.role !== "Collecting Officer") {
+    if (path.startsWith("/cashier") && token?.role !== "Collecting Officer") {
       return NextResponse.redirect(new URL("/", req.url));
     }
   },
@@ -45,7 +45,7 @@ export const config = {
     "/regional-director/:path*",
     "/oiccao/:path*",
     "/provincial/:path*",
-    "/collector/:path*",
+    "/cashier/:path*",
     "/",
   ],
 };
