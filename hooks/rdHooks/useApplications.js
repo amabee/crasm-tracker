@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const fetchApplications = async () => {
-  const response = await fetch("/api/admin/applications");
+  const response = await fetch("/api/rd/applications");
   if (!response.ok) {
     throw new Error("Network response was not ok");
   }
@@ -52,7 +52,7 @@ const fetchApplications = async () => {
 
 const fetchApplicationById = async (id) => {
   try {
-    const response = await fetch(`/api/admin/applications/${id}`);
+    const response = await fetch(`/api/rd/applications/${id}`);
     const data = await response.json();
 
     if (!response.ok) {
@@ -93,7 +93,7 @@ export const useApplication = (id) => {
 
   const deleteApplicationMutation = useMutation({
     mutationFn: async (applicationId) => {
-      const response = await fetch(`/api/admin/applications/${applicationId}`, {
+      const response = await fetch(`/api/rd/applications/${applicationId}`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -108,14 +108,14 @@ export const useApplication = (id) => {
 
   const updateApplicationMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      const response = await fetch(`/api/admin/applications/${id}`, {
+      const response = await fetch(`/api/rd/applications/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
-
+      console.log("RESPONSE: ", response);
       if (!response.ok) {
         throw new Error("Failed to update application");
       }
@@ -138,7 +138,7 @@ export const useApplication = (id) => {
 
   const createApplicationMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await fetch("/api/admin/applications", {
+      const response = await fetch("/api/rd/applications", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

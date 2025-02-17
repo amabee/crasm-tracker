@@ -4,7 +4,7 @@ export function useOverview() {
   return useQuery({
     queryKey: ['overview'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/overview');
+      const response = await fetch('/api/rd/overview');
       if (!response.ok) {
         throw new Error('Failed to fetch dashboard data');
       }

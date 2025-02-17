@@ -14,7 +14,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { AvatarFallback } from "@radix-ui/react-avatar";
+import { AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { useOverview } from "@/hooks/useOverView";
 import { formatDateTime, readableDate } from "@/lib/utils";
 
@@ -33,11 +33,29 @@ const item = {
   show: { y: 0, opacity: 1 },
 };
 
-
 const RecentApplicantCard = ({ applicant }) => {
   const statusColor = {
     "in progress": "bg-amber-100 text-amber-700 border-amber-200",
     complete: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  };
+
+  // Updated with more saturated colors for better visibility
+  const avatarColors = [
+    "bg-blue-200 text-blue-800",
+    "bg-green-200 text-green-800",
+    "bg-purple-200 text-purple-800",
+    "bg-pink-200 text-pink-800",
+    "bg-indigo-200 text-indigo-800",
+    "bg-orange-200 text-orange-800",
+    "bg-teal-200 text-teal-800",
+    "bg-red-200 text-red-800",
+  ];
+
+  const getAvatarColor = (name) => {
+    const index = name
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return avatarColors[index % avatarColors.length];
   };
 
   const readableDate = (dateString) => {
@@ -48,46 +66,63 @@ const RecentApplicantCard = ({ applicant }) => {
     });
   };
 
+  const [bgColor, textColor] = getAvatarColor(applicant.name).split(" ");
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors duration-200"
+      className="relative px-6 py-4 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors duration-200"
     >
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-12 w-12 ring-2 ring-slate-100 ring-offset-2">
-            <AvatarFallback className="bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 font-medium">
-              {applicant.name
-                ?.split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
-          <div className="space-y-1">
+      <div
+        className={`absolute left-0 top-0 h-full w-1 ${
+          applicant.status.toLowerCase() === "complete"
+            ? "bg-emerald-500"
+            : "bg-amber-500"
+        }`}
+      />
+
+      <div className="flex items-center gap-4">
+        <Avatar className="h-12 w-12">
+          <AvatarImage
+            src={`https://placehold.co/800@2x/FFAC1C/FFF?text=${applicant.name
+              ?.split(" ")
+              .map((n) => n[0])
+              .join("")}`}
+          />
+          <AvatarFallback
+            className={`${bgColor} ${textColor} font-medium text-center`}
+          >
+            {applicant.name
+              ?.split(" ")
+              .map((n) => n[0])
+              .join("")}
+          </AvatarFallback>
+        </Avatar>
+
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-1">
             <h3 className="font-semibold text-slate-800 leading-none">
               {applicant.name}
             </h3>
-            <div className="flex items-center gap-3 text-sm text-slate-500">
-              <div className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>{applicant.province}</span>
-              </div>
-            </div>
+            <Badge
+              className={`px-2 py-0.5 text-xs font-medium border pointer-events-none ${
+                statusColor[applicant.status.toLowerCase()]
+              }`}
+            >
+              {applicant.status}
+            </Badge>
           </div>
-        </div>
 
-        <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-3">
-          <Badge
-            className={`px-3 py-1 font-medium border ${
-              statusColor[applicant.status.toLowerCase()]
-            }`}
-          >
-            {applicant.status}
-          </Badge>
-          <div className="flex items-center gap-1.5 text-sm text-slate-500">
-            <Calendar className="w-3.5 h-3.5" />
-            <span>{readableDate(applicant.date_created)}</span>
+          <div className="flex items-center justify-between text-sm text-slate-500">
+            <div className="flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5" />
+              <span className="font-medium">{applicant.province}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5" />
+              <span>{readableDate(applicant.date_created)}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -98,17 +133,33 @@ const RecentApplicantCard = ({ applicant }) => {
 const AdminDashboard = () => {
   const { data, isLoading, error } = useOverview();
 
-  const generateChartData = () => {
-    const dates = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (6 - i));
-      return date;
+  const formatMonthlyData = (monthlyData) => {
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    const formattedData = months.map((name, index) => ({
+      name,
+      applications: 0,
+      month: index + 1,
+    }));
+
+    monthlyData?.forEach((item) => {
+      formattedData[item.month - 1].applications = Number(item.total);
     });
 
-    return dates.map((date) => ({
-      name: date.toLocaleDateString("en-US", { weekday: "short" }),
-      applications: Math.floor(Math.random() * 20) + 1,
-    }));
+    return formattedData;
   };
 
   if (isLoading) {
@@ -151,7 +202,7 @@ const AdminDashboard = () => {
     },
   ];
 
-  const chartData = generateChartData();
+  const chartData = formatMonthlyData(data?.monthly_applications);
 
   return (
     <div className="space-y-8 p-4">
@@ -211,7 +262,9 @@ const AdminDashboard = () => {
 
         <Card className="col-span-full lg:col-span-7">
           <CardHeader>
-            <CardTitle>Applications Overview</CardTitle>
+            <CardTitle>
+              Monthly Applications ({new Date().getFullYear()})
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="w-full h-[400px]">

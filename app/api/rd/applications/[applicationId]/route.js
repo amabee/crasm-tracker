@@ -77,15 +77,10 @@ export async function PATCH(request, { params }) {
     const body = await request.json();
 
     const allowedFields = [
-      "date_received_by_ro",
-      "ro_screener",
-      "date_forwarded_to_the_office_of_oic",
-      "oic_crasd",
-      "feedbacks",
-      "date_forwarded_to_ord",
-      "date_crasm_generated",
-      "date_forwarded_back_to_the_office_of_oic_cao",
-      "date_transmitted_back_to_po",
+      "date_application_approved_by_rd",
+      "for_issuance_of_crasm",
+      "for_transmittal_of_crasm",
+      "date_crasm_approved_by_rd",
     ];
 
     const updates = Object.entries(body)
@@ -133,7 +128,6 @@ export async function PATCH(request, { params }) {
     }
 
     if (result.affectedRows === 0) {
-      console.log("HERE?");
       return NextResponse.json(
         { error: "Application not found" },
         { status: 404 }

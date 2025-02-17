@@ -1,4 +1,5 @@
 "use client";
+import LoadinPage from "@/components/LoadinPage";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -33,7 +34,7 @@ export default function Home() {
   }, [status, session, router]);
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return <LoadinPage />;
   }
 
   return null;
