@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const fetchApplications = async (province_id = null) => {
-  const url = new URL("/api/cashier/applications", window.location.origin);
+  const url = new URL("/api/provincial/applications", window.location.origin);
 
   if (province_id) {
     url.searchParams.append("province_id", province_id);
@@ -58,7 +58,7 @@ const fetchApplications = async (province_id = null) => {
 
 const fetchApplicationById = async (id) => {
   try {
-    const response = await fetch(`/api/cashier/applications/${id}`);
+    const response = await fetch(`/api/provincial/applications/${id}`);
     const data = await response.json();
 
     if (!response.ok) {
@@ -100,7 +100,7 @@ export const useApplication = (id, province_id = null) => {
   const deleteApplicationMutation = useMutation({
     mutationFn: async (applicationId) => {
       const response = await fetch(
-        `/api/cashier/applications/${applicationId}`,
+        `/api/provincial/applications/${applicationId}`,
         {
           method: "DELETE",
         }
@@ -117,7 +117,7 @@ export const useApplication = (id, province_id = null) => {
 
   const updateApplicationMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      const response = await fetch(`/api/cashier/applications/${id}`, {
+      const response = await fetch(`/api/provincial/applications/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -147,7 +147,7 @@ export const useApplication = (id, province_id = null) => {
 
   const createApplicationMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await fetch("/api/cashier/applications", {
+      const response = await fetch("/api/provincial/applications", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -161,6 +161,8 @@ export const useApplication = (id, province_id = null) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
+
+      toast.success("Application Created!");
     },
   });
 

@@ -32,6 +32,7 @@ import {
   Eye,
   Edit,
   Trash,
+  Plus,
 } from "lucide-react";
 import {
   Tooltip,
@@ -44,17 +45,20 @@ import { formatDate, formatDateTime } from "@/lib/utils";
 import ApplicationViewDialog from "./applicationViewDialog";
 import ApplicationUpdateDialog from "./applicationUpdateDialog";
 import { useSession } from "next-auth/react";
+import AddApplicationModal from "./applicationCreationDialog";
 
 const DataTable = () => {
   const { data: session, status } = useSession();
   const {
     applications,
+    createApplication,
     isLoading,
     isError,
+    isCreating,
     updateApplication,
     isUpdating,
     refetchApplications,
-  } = useApplication(null,session?.user?.provinceId);
+  } = useApplication(null, session?.user?.provinceId);
 
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [searchTerm, setSearchTerm] = useState("");
@@ -164,12 +168,14 @@ const DataTable = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" className="ml-2">
-                  {selectedRows.size} Selected
-                </Button>
+                <AddApplicationModal
+                  onAdd={createApplication}
+                  isAdding={isCreating}
+                  onRefetchData={refetchApplications}
+                />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Selected items can be batch processed</p>
+                <p>Create a new application record</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

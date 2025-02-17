@@ -161,6 +161,7 @@ export const useApplication = (id, province_id = null) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
+
     },
   });
 

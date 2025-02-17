@@ -76,7 +76,14 @@ export async function PATCH(request, { params }) {
     const { applicationId } = await params;
     const body = await request.json();
 
-    const allowedFields = ["date_of_payment", "or_number"];
+    const allowedFields = [
+      "name_of_applicant",
+      "date_received_by_po_from_so_applicant",
+      "type_of_application",
+      "date_transmitted_to_ro",
+      "date_received_by_po",
+      "date_released_to_so",
+    ];
 
     const updates = Object.entries(body)
       .filter(

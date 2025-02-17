@@ -88,3 +88,65 @@ export async function GET(request) {
     );
   }
 }
+
+export async function POST(request) {
+  try {
+    const body = await request.json();
+
+    const applicationFields = [
+      "name_of_applicant",
+      "type_of_application",
+      "provincial_office",
+      "date_received_by_po_from_so_applicant",
+      "date_transmitted_to_ro",
+      "date_received_by_po",
+      "date_released_to_so",
+      "remarks",
+    ];
+
+    let fields = [];
+    let placeholders = [];
+    let values = [];
+
+    applicationFields.forEach((field) => {
+      if (body[field] !== undefined) {
+        fields.push(field);
+        placeholders.push("?");
+        values.push(body[field]);
+      }
+    });
+
+    const query = `
+      INSERT INTO applications 
+      (${fields.join(", ")}, date_created) 
+      VALUES 
+      (${placeholders.join(", ")}, NOW())
+    `;
+
+    const result = await executeQuery({
+      query,
+      values,
+    });
+
+    if (result.error) {
+      return NextResponse.json(
+        { error: "Error creating application" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        message: "Application created successfully",
+        id: result.insertId,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Error in POST applications:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Edit, Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { useSession } from "next-auth/react";
 
 const ApplicationUpdateDialog = ({
   application,
@@ -31,11 +32,17 @@ const ApplicationUpdateDialog = ({
   onRefetchData,
 }) => {
   const [open, setOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   const form = useForm({
     defaultValues: {
-      date_of_payment: application?.[index]?.dateOfPayment || "",
+      name_of_applicant: application?.[index]?.fullname || "",
       or_number: application?.[index]?.OrNumber || "",
+      type_of_application: application?.[index]?.typeOfApplication || "",
+      date_transmitted_to_ro: application?.[index]?.dateTransmittedToRo || "",
+      provincial_office: application?.[index]?.province || "",
+      date_received_by_po: application?.[index]?.dateTransmittedToRo || "",
+      date_released_to_so: application?.[index]?.dateReleasedToSO || "",
     },
   });
 
@@ -74,10 +81,38 @@ const ApplicationUpdateDialog = ({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="date_of_payment"
+              name="name_of_applicant"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date of Payment</FormLabel>
+                  <FormLabel>Name of Applicant</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="provincial_office"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Provincial Office</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="date_received_by_po_from_so_applicant"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Date Received by PO from the SO Applicant
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="date"
@@ -91,12 +126,63 @@ const ApplicationUpdateDialog = ({
 
             <FormField
               control={form.control}
-              name="or_number"
+              name="type_of_application"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>O.R. Number</FormLabel>
+                  <FormLabel>Type of Application</FormLabel>
                   <FormControl>
                     <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="date_transmitted_to_ro"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date Transmitted to RO</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      {...field}
+                      value={formatDateForInput(field.value)}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="date_received_by_po"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date Received by PO</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      {...field}
+                      value={formatDateForInput(field.value)}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="date_released_to_so"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date Released to SO</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      {...field}
+                      value={formatDateForInput(field.value)}
+                    />
                   </FormControl>
                 </FormItem>
               )}
