@@ -19,7 +19,7 @@ import { useOverview } from "@/hooks/cashierHooks/useOverView";
 import { useSession } from "next-auth/react";
 
 const container = {
-  hidden: { opacity: 0 },
+  hidden: { opacity: 0 }, 
   show: {
     opacity: 1,
     transition: {

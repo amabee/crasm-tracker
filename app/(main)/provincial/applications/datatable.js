@@ -33,6 +33,8 @@ import {
   Edit,
   Trash,
   Plus,
+  CheckSquare, 
+  Loader2,
 } from "lucide-react";
 import {
   Tooltip,
@@ -46,6 +48,7 @@ import ApplicationViewDialog from "./applicationViewDialog";
 import ApplicationUpdateDialog from "./applicationUpdateDialog";
 import { useSession } from "next-auth/react";
 import AddApplicationModal from "./applicationCreationDialog";
+import ApplicationChecklistDialog from "./applicationChecklistDialog";
 
 const DataTable = () => {
   const { data: session, status } = useSession();
@@ -250,7 +253,7 @@ const DataTable = () => {
                   <TableCell>
                     {formatDateTime(application.dateCreated)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell> 
                     <Badge variant="outline">
                       {application.awaitingProcess}
                     </Badge>
@@ -267,6 +270,18 @@ const DataTable = () => {
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>View Details</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <ApplicationChecklistDialog
+                              applicationId={application.id}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Checklist</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
