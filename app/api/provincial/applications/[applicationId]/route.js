@@ -51,7 +51,7 @@ export async function GET(request, { params }) {
         { error: "Application not found" },
         { status: 404 }
       );
-    }
+    }       
 
     if (results.error) {
       console.error("Database error:", results.error);
