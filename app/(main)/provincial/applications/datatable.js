@@ -277,7 +277,8 @@ const DataTable = () => {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <ApplicationChecklistDialog
-                              applicationId={application.id}
+                              applicationId={application}
+                              application={application}
                             />
                           </TooltipTrigger>
                           <TooltipContent>

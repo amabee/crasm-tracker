@@ -54,6 +54,7 @@ import { useApplication } from "@/hooks/useApplications";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import ApplicationViewDialog from "./applicationViewDialog";
 import ApplicationUpdateDialog from "./applicationUpdateDialog";
+import ApplicationChecklistDialog from "./applicationChecklistDialog";
 
 const DataTable = () => {
   const {
@@ -275,6 +276,18 @@ const DataTable = () => {
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>View Details</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <ApplicationChecklistDialog
+                              applicationId={application.id}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Checklist</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
